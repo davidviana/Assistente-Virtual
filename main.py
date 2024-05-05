@@ -1,4 +1,5 @@
 import speech_recognition as sr
+import datetime
 import wikipedia as wk
 import pyttsx3 as pyt
 import datetime as dt
@@ -9,14 +10,16 @@ mic = sr.Microphone()
 maquina = pyt.init()
 
 def executa_comando():
+    comando = ""
     try:
         with mic as source:
             audio.adjust_for_ambient_noise(source)
             voz = audio.listen(source)
+            print(voz)
             comando = audio.recognize_google(voz, language='pt-BR')
             comando = comando.lower()
-            if "alfred" in comando:
-                comando = comando.replace("alfred", "")
+            if "kira" in comando:
+                comando = comando.replace("kira", "")
                 maquina.say(comando)
                 maquina.runAndWait()
     except sr.UnknownValueError:
@@ -32,7 +35,7 @@ def executa_comando():
 def comando_voz_usuario():  
     comando = executa_comando()
     if "horas" in comando:
-        horas = dt.datetime.now().strftime("%H%M")
+        horas = dt.datetime.now().strftime("%H horas e %M minutos")
         maquina.say("Agora são " + horas)
         maquina.runAndWait()
     elif "procure por" in comando:
@@ -42,9 +45,29 @@ def comando_voz_usuario():
         maquina.say(result)
         maquina.runAndWait()
     elif "toque" in comando:
-        toque = comando.replace("toque", "")
-        result = []
+        if "cantor" in comando:
+            print("Falou do cantor")
+            toque = comando.replace("toque", "").strip()
+            cantor_index = comando.index("cantor") + len("cantor")
+            cantor = comando[cantor_index:].strip()
+            maquina.say(f"Tocando {toque} do cantor {cantor} em segundo plano")
+            maquina.runAndWait()
+            ms.playonyt(f"{toque} {cantor}")
+        else:
+            print("Música comum")
+            toque = comando.replace("toque", "").strip()
+            maquina.say(f"Tocando {toque} em segundo plano")
+            maquina.runAndWait()
+            ms.playonyt(toque)
+    elif "mande uma mensagem" in comando:
+            contact = ""
+            msg = comando.replace("mande uma mensagem", "")
+            hour, mins = datetime.datetime.now().strftime("%H"), (datetime.datetime.now() + datetime.timedelta(minutes=1)).strftime("%M")
+            maquina.say(result)
+            maquina.runAndWait()
+            ms.sendwhatmsg(contact, msg, hour, mins)
 
 
 
-comando_voz_usuario()
+while True:
+    comando_voz_usuario()
